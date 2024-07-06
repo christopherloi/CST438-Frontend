@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from 'react';
+import {SERVER_URL} from '../../Constants';
+import Button from '@mui/material/Button';
 
 // students displays a list of open sections for a 
 // use the URL /sections/open
@@ -10,18 +12,18 @@ import React, {useState, useEffect} from 'react';
 
 const CourseEnroll = (props) => {
      
-    const headers = ['Section No', 'Year', 'Semester',  'Course Id', 'Section', 'Title', 'Building', 'Room', 'Times', 'Instructor', ''];
+    const headers = ['Section No', 'Year', 'Semester',  'Course Id', 'Title', 'Section', 'Building', 'Room', 'Times', 'Instructor', 'Instructor Email', ''];
 
     const [sections, setSections] = useState([  ]);
-
+    const [enrollments, setEnrollments] = useState([  ]);
     const [message, setMessage] = useState('');
 
-    const fetchEnrollments = async () => {
+    const fetchOpenSections = async () => {
         try {
           const response = await fetch(`${SERVER_URL}/sections/open`);
           if (response.ok) {
             const data = await response.json();
-            setSection(data);
+            setSections(data);
           } else {
             const json = await response.json();
             setMessage("response error: "+json.message);
@@ -32,8 +34,30 @@ const CourseEnroll = (props) => {
       }
 
     useEffect( () => {
-    fetchUsers();
+      fetchOpenSections();
     }, []);
+
+    const onEnroll = async (secNo) => {
+      try {
+        const response = await fetch(`${SERVER_URL}/enrollments/sections/${secNo}?studentId=3`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }, 
+            body: JSON.stringify(secNo),
+          });
+        if (response.ok) {
+          setMessage("Enrolled in course")
+          fetchOpenSections();
+        } else {
+          const rc = await response.json();
+          setMessage(rc.message);
+        }
+      } catch (err) {
+        setMessage("network error: "+err);
+      }   
+    }
  
     return(
         <>
@@ -59,13 +83,11 @@ const CourseEnroll = (props) => {
                           <td>{s.times}</td>
                           <td>{s.instructorName}</td>
                           <td>{s.instructorEmail}</td>
-                          <td><UserUpdate user={user} save={saveUser} /></td>
-                          <td><Button onClick={onDelete}>Delete</Button></td>
+                          <td><Button onClick={() => onEnroll(s.secNo)}>ADD COURSE</Button></td>
                           </tr>
                       ))}
                 </tbody>
             </table>
-            <UserAdd save={addUser} />
         </>
     );
 }
