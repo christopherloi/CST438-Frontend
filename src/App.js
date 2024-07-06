@@ -45,10 +45,10 @@ function App() {
           <Routes>
             <Route path="/" element={<StudentLayout />}>
               <Route index element={<StudentHome />} />
-              <Route path="schedule" element={<ScheduleView />} />
+              {/* <Route path="schedule" element={<ScheduleView />} /> */}
               <Route path="studentAssignments" element={<StudentAssignmentsView />} />
-              <Route path="transcript" element={<Transcript />} />
-              <Route path="addCourse" element={<CourseEnroll />} />
+              {/* <Route path="transcript" element={<Transcript />} />
+              <Route path="addCourse" element={<CourseEnroll />} /> */}
             </Route>
           </Routes>
         </BrowserRouter>
@@ -62,7 +62,7 @@ function App() {
             <Route path="/" element={<InstructorLayout />}>
               <Route index element={<InstructorHome />} />
               <Route path="assignments" element={<AssignmentsView />} />
-              <Route path="enrollments" element={<EnrollmentsView />} />
+              {/* <Route path="enrollments" element={<EnrollmentsView />} /> */}
               <Route path="sections" element={<InstructorSectionsView />} />
             </Route>
           </Routes>
