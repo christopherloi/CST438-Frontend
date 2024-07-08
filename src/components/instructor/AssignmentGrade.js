@@ -17,7 +17,7 @@ const AssignmentGrade = ({ assignment }) => {
     useEffect(() => {
         const fetchGrades = async () => {
             try {
-                const response = await fetch(`${SERVER_URL}/assignment/${assignment.id}/grades`);
+                const response = await fetch(`${SERVER_URL}/assignments/${assignment.id}/grades`);
                 if (response.ok) {
                     const data = await response.json();
                     setGrades(data);
