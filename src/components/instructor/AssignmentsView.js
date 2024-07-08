@@ -132,8 +132,7 @@ const AssignmentsView = () => {
                         <td>{a.id}</td>
                         <td>{a.title}</td>
                         <td>{a.dueDate}</td>
-                        <td><AssignmentGrade assignment={a} save={gradeAssignment} /></td>
-                        <td><AssignmentUpdate assignment={a} save={saveAssignment} /></td>
+                        <td><AssignmentGrade assignment={a} save={gradeAssignment}/></td>
                         <td><Button onClick={onDelete}>DELETE</Button></td>
                     </tr>
                 ))}

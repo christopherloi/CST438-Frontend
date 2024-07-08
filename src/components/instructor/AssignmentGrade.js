@@ -87,7 +87,7 @@ const AssignmentGrade = ({ assignment }) => {
                 ))}
                 </tbody>
             </table>
-            <Button onClick={handleSave}>Save</Button>
+            <Button onClick={handleSave}>Grade</Button>
         </div>
     );
 };
