@@ -15,6 +15,8 @@ const EnrollmentsView = () => {
     const location = useLocation();
     const { secNo } = location.state;
 
+    console.log('secNo:', secNo); // Debugging line to check secNo value
+
     const [enrollments, setEnrollments] = useState([]);
     const [message, setMessage] = useState('');
 
@@ -33,7 +35,12 @@ const EnrollmentsView = () => {
                 setMessage("network error: " + err);
             }
         };
-        fetchEnrollments();
+
+        if (secNo) {
+            fetchEnrollments();
+        } else {
+            setMessage("Section number is undefined");
+        }
     }, [secNo]);
 
     const handleGradeChange = (e, enrollmentId) => {

@@ -14,42 +14,38 @@ import {Link} from 'react-router-dom';
 // <Link to="/enrollments" state={section}>View Enrollments</Link>
 // <Link to="/assignments" state={section}>View Assignments</Link>
 
-const InstructorSectionsView = (props) => {
-
+const InstructorSectionsView = () => {
     const headers = ['Section Number', 'Course ID', 'Section ID', 'Building', 'Room', 'Times', '', ''];
-
     const location = useLocation();
-    const {year, semester} = location.state;
+    const { year, semester } = location.state;
 
-    // const [term, setTerm] = useState('');
     const [message, setMessage] = useState('');
-    // const [search, setSearch] = useState({year:'', semester:''});
     const [sections, setSections] = useState([]);
 
     const fetchSections = async () => {
         try {
             const response = await fetch(`${SERVER_URL}/sections?email=dwisneski@csumb.edu&year=${year}&semester=${semester}`);
-          if (response.ok) {
-            const data = await response.json();
-            setSections(data);
-          } else {
-            const json = await response.json();
-            setMessage("response error: "+json.message);
-          }
+            if (response.ok) {
+                const data = await response.json();
+                setSections(data);
+            } else {
+                const json = await response.json();
+                setMessage("response error: " + json.message);
+            }
         } catch (err) {
-          setMessage("network error: "+err);
-        }  
-    }
-    
-    useEffect( () => { 
+            setMessage("network error: " + err);
+        }
+    };
+
+    useEffect(() => {
         fetchSections();
-      },  []);
-     
-    return(
-        <div> 
+    }, [year, semester]);
+
+    return (
+        <div>
             <h4>{message}</h4>
-            <h3>Sections 2024 Spring</h3>
-            <table className="Center" > 
+            <h3>Sections {year} {semester}</h3>
+            <table className="Center">
                 <thead>
                 <tr>
                     {headers.map((h, idx) => (<th key={idx}>{h}</th>))}
@@ -57,22 +53,21 @@ const InstructorSectionsView = (props) => {
                 </thead>
                 <tbody>
                 {sections.map((s) => (
-                        <tr key={s.secNo}>
+                    <tr key={s.secNo}>
                         <td>{s.secNo}</td>
                         <td>{s.courseId}</td>
                         <td>{s.secId}</td>
                         <td>{s.building}</td>
                         <td>{s.room}</td>
                         <td>{s.times}</td>
-                        <td><Link to='/enrollments' state={s.secNo}>Enrollments</Link></td>
-                        <td><Link to='/assignments' state={s.secNo}>Assignments</Link></td>
-                        </tr>
-                    ))}
+                        <td><Link to='/enrollments' state={{ secNo: s.secNo }}>Enrollments</Link></td>
+                        <td><Link to='/assignments' state={{ secNo: s.secNo }}>Assignments</Link></td>
+                    </tr>
+                ))}
                 </tbody>
             </table>
         </div>
     );
-}
+};
 
 export default InstructorSectionsView;
-
