@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button } from '@mui/material';
 import { SERVER_URL } from '../../Constants';
 
@@ -6,8 +6,12 @@ import { SERVER_URL } from '../../Constants';
 //  use an mui Dialog
 //  issue PUT to URL  /assignments with updated assignment
 
-const AssignmentUpdate = ({ assignment, open, handleClose, save }) => {
+const AssignmentUpdate = ({ assignment, open, handleClose }) => {
     const [updatedAssignment, setUpdatedAssignment] = useState({ ...assignment });
+
+    useEffect(() => {
+        setUpdatedAssignment({ ...assignment });
+    }, [assignment]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -16,7 +20,7 @@ const AssignmentUpdate = ({ assignment, open, handleClose, save }) => {
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch(`${SERVER_URL}/assignments/${updatedAssignment.id}`, {
+            const response = await fetch(`${SERVER_URL}/assignments`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -24,8 +28,7 @@ const AssignmentUpdate = ({ assignment, open, handleClose, save }) => {
                 body: JSON.stringify(updatedAssignment),
             });
             if (response.ok) {
-                handleClose(true);
-                save(updatedAssignment); // Update parent component state
+                handleClose(true); // Close dialog on success
             } else {
                 const json = await response.json();
                 console.error("response error: " + json.message);
@@ -46,6 +49,7 @@ const AssignmentUpdate = ({ assignment, open, handleClose, save }) => {
                     name="id"
                     fullWidth
                     value={updatedAssignment.id}
+                    onChange={handleChange}
                     InputProps={{ readOnly: true }}
                 />
                 <TextField

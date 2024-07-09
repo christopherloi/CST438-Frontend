@@ -21,7 +21,7 @@ const AssignmentsView = () => {
 
     const [message, setMessage] = useState('');
     const [assignments, setAssignments] = useState([]);
-    const [editAssignment, setEditAssignment] = useState(null); // Track assignment being edited
+    const [editAssignment, setEditAssignment] = useState(null);
     const [showGradeDialog, setShowGradeDialog] = useState(false);
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
@@ -49,78 +49,49 @@ const AssignmentsView = () => {
         }
     }, [secNo]);
 
-    const gradeAssignment = async (assignment) => {
+    const gradeAssignment = (assignment) => {
         setSelectedAssignment(assignment);
         setShowGradeDialog(true);
     };
 
-    const saveAssignment = async (assignment) => {
-        try {
-            const response = await fetch(`${SERVER_URL}/assignments`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(assignment),
-            });
-            if (response.ok) {
-                setMessage("Assignment saved");
-                fetchAssignments();
-            } else {
-                const json = await response.json();
-                setMessage("response error: " + json.message);
-            }
-        } catch (err) {
-            setMessage("network error: " + err);
-        }
-    };
-
-    const deleteAssignment = async (assignmentId) => {
-        try {
-            const response = await fetch(`${SERVER_URL}/assignments/${assignmentId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.ok) {
-                setMessage("Assignment deleted");
-                fetchAssignments();
-            } else {
-                const rc = await response.json();
-                setMessage("Delete failed " + rc.message);
-            }
-        } catch (err) {
-            setMessage("network error: " + err);
-        }
-    };
-
     const onDelete = async (assignmentId) => {
         if (window.confirm('Do you really want to delete?')) {
-            await deleteAssignment(assignmentId);
+            try {
+                const response = await fetch(`${SERVER_URL}/assignments/${assignmentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (response.ok) {
+                    setMessage("Assignment deleted");
+                    fetchAssignments();
+                } else {
+                    const rc = await response.json();
+                    setMessage("Delete failed " + rc.message);
+                }
+            } catch (err) {
+                setMessage("network error: " + err);
+            }
         }
     };
 
     const onEdit = (assignment) => {
         setEditAssignment(assignment);
-        setShowUpdateDialog(true); // Open the update dialog
+        setShowUpdateDialog(true);
     };
 
-    const closeEditDialog = () => {
+    const closeEditDialog = (updated) => {
         setEditAssignment(null);
-        setShowUpdateDialog(false); // Close the update dialog
+        setShowUpdateDialog(false);
+        if (updated) {
+            fetchAssignments(); // Refresh assignments if updated
+        }
     };
 
     const handleCloseGradeDialog = () => {
         setShowGradeDialog(false);
         setSelectedAssignment(null);
-    };
-
-    const handleCloseUpdateDialog = (updated) => {
-        setShowUpdateDialog(false);
-        if (updated) {
-            fetchAssignments(); // Refresh assignments if updated
-        }
     };
 
     return (
@@ -156,7 +127,7 @@ const AssignmentsView = () => {
                 <AssignmentUpdate
                     assignment={editAssignment}
                     open={showUpdateDialog}
-                    handleClose={handleCloseUpdateDialog}
+                    handleClose={closeEditDialog}
                 />
             )}
 
