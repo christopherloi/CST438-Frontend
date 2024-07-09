@@ -2,13 +2,9 @@ import React, { useState } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button } from '@mui/material';
 import { SERVER_URL } from '../../Constants';
 
-// complete the code.  
-// instructor adds an assignment to a section
-// use mui Dialog with assignment fields Title and DueDate
-// issue a POST using URL /assignments to add the assignment
-
 const AssignmentAdd = ({ secNo, open, handleClose }) => {
     const [assignment, setAssignment] = useState({ title: '', dueDate: '' });
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -28,10 +24,10 @@ const AssignmentAdd = ({ secNo, open, handleClose }) => {
                 handleClose(true);
             } else {
                 const json = await response.json();
-                console.error("response error: " + json.message);
+                setError("Response error: " + json.message);
             }
         } catch (err) {
-            console.error("network error: " + err);
+            setError("Network error: " + err.message);
         }
     };
 
@@ -58,6 +54,7 @@ const AssignmentAdd = ({ secNo, open, handleClose }) => {
                     value={assignment.dueDate}
                     onChange={handleChange}
                 />
+                {error && <p style={{ color: 'red' }}>{error}</p>}
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => handleClose(false)}>Cancel</Button>

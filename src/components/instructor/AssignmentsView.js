@@ -1,18 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import { confirmAlert } from 'react-confirm-alert';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import {useLocation} from 'react-router-dom'
-import {SERVER_URL} from '../../Constants';
+import { useLocation } from 'react-router-dom';
+import { SERVER_URL } from '../../Constants';
 import AssignmentUpdate from './AssignmentUpdate';
-import AssignmentGrade from './AssignmentGrade'
-
-// instructor views assignments for their section
-// use location to get the section value 
-// 
-// GET assignments using the URL /sections/{secNo}/assignments
-// returns a list of AssignmentDTOs
-// display a table with columns 
-// assignment id, title, dueDate and buttons to grade, edit, delete each assignment
+import AssignmentGrade from './AssignmentGrade';
+import AssignmentAdd from './AssignmentAdd';
 
 const AssignmentsView = () => {
     const headers = ['ID', 'Title', 'Due Date', '', '', ''];
@@ -25,6 +17,7 @@ const AssignmentsView = () => {
     const [showGradeDialog, setShowGradeDialog] = useState(false);
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+    const [showAddDialog, setShowAddDialog] = useState(false);
 
     const fetchAssignments = async () => {
         try {
@@ -94,9 +87,16 @@ const AssignmentsView = () => {
         setSelectedAssignment(null);
     };
 
-    const addAssignment = () => {
+    const onAdd = () => {
+        setShowAddDialog(true);
+    };
 
-    }
+    const closeAddDialog = (updated) => {
+        setShowAddDialog(false);
+        if (updated) {
+            fetchAssignments(); // Refresh assignments if a new assignment was added
+        }
+    };
 
     return (
         <div>
@@ -127,7 +127,7 @@ const AssignmentsView = () => {
                 </tbody>
             </table>
             <div>
-                <Button onClick={() => addAssignment()}>ADD ASSIGNMENT</Button>
+                <Button onClick={onAdd}>ADD ASSIGNMENT</Button>
             </div>
 
             {editAssignment && (
@@ -142,6 +142,14 @@ const AssignmentsView = () => {
                 <AssignmentGrade
                     assignment={selectedAssignment}
                     onClose={handleCloseGradeDialog}
+                />
+            )}
+
+            {showAddDialog && (
+                <AssignmentAdd
+                    secNo={secNo}
+                    open={showAddDialog}
+                    handleClose={closeAddDialog}
                 />
             )}
         </div>
