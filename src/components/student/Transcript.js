@@ -15,7 +15,7 @@ const Transcript = (props) => {
 
     const fetchTranscript = async () => {
         try {
-            const response = await fetch(`${SERVER_URL}/transcript?studentId=3`);
+            const response = await fetch(`${SERVER_URL}/transcripts?studentId=3`);
             if (response.ok) {
                 const data = await response.json();
                 setTranscript(data);

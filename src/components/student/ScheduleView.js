@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback } from 'react';
 import {SERVER_URL} from '../../Constants';
 import Button from '@mui/material/Button';
 
@@ -13,14 +13,16 @@ import Button from '@mui/material/Button';
 const ScheduleView = () => {
     const [schedule, setSchedule] = useState([]);
     const [message, setMessage] = useState('');
+    const [year, setYear] = useState('2024');  // Default value, change as needed
+    const [semester, setSemester] = useState('Spring');  // Default value, change as needed
 
-    useEffect(() => {
-        fetchSchedule();
-    }, []);
+    // useEffect(() => {
+    //     fetchSchedule();
+    // }, []);
 
-    const fetchSchedule = async () => {
+    const fetchSchedule = useCallback (async () => {
         try {
-            const response = await fetch(`${SERVER_URL}/enrollment?studentId=3&year=&semester=`);
+            const response = await fetch(`${SERVER_URL}/enrollments?studentId=3&year=${year}&semester=${semester}`);
             if (response.ok) {
                 const data = await response.json();
                 setSchedule(data);
@@ -31,11 +33,15 @@ const ScheduleView = () => {
         } catch (err) {
             setMessage("network error: " + err);
         }
-    };
+    },[year, semester]);
+
+    useEffect(() => {
+        fetchSchedule();
+    }, [fetchSchedule]);
 
     const dropCourse = async (enrollmentId) => {
         try {
-            const response = await fetch(`${SERVER_URL}/enrollment/${enrollmentId}`, {
+            const response = await fetch(`${SERVER_URL}/enrollments/${enrollmentId}`, {
                 method: 'DELETE',
             });
             if (response.ok) {
@@ -54,6 +60,24 @@ const ScheduleView = () => {
         <div>
             <h3>Schedule</h3>
             <h4>{message}</h4>
+            <div>
+                <label>
+                    Year:
+                    <select value={year} onChange={(e) => setYear(e.target.value)}>
+                        {[2021, 2022, 2023, 2024].map((y) => (
+                            <option key={y} value={y}>{y}</option>
+                        ))}
+                    </select>
+                </label>
+                <label>
+                    Semester:
+                    <select value={semester} onChange={(e) => setSemester(e.target.value)}>
+                        <option value="Spring">Spring</option>
+                        <option value="Fall">Fall</option>
+                    </select>
+                </label>
+                <Button onClick={fetchSchedule}>Show Schedule</Button>
+            </div>
             <table className="Center">
                 <thead>
                 <tr>
@@ -68,7 +92,7 @@ const ScheduleView = () => {
                 </thead>
                 <tbody>
                 {schedule.map((s) => (
-                    <tr key={s.secNo}> //Todo check if this is right, not confident
+                    <tr key={s.enrollmentId}>
                         <td>{s.year}</td>
                         <td>{s.semester}</td>
                         <td>{s.courseId}</td>
@@ -76,7 +100,7 @@ const ScheduleView = () => {
                         <td>{s.title}</td>
                         <td>{s.credits}</td>
                         <td>
-                            <Button onClick={() => dropCourse(s.secNo)}>Drop Course</Button>
+                            <Button onClick={() => dropCourse(s.enrollmentId)}>Drop Course</Button>
                         </td>
                     </tr>
                 ))}
