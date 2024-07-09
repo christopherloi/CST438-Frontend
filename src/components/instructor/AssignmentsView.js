@@ -94,6 +94,10 @@ const AssignmentsView = () => {
         setSelectedAssignment(null);
     };
 
+    const addAssignment = () => {
+
+    }
+
     return (
         <div>
             <h4>{message}</h4>
@@ -122,6 +126,9 @@ const AssignmentsView = () => {
                 ))}
                 </tbody>
             </table>
+            <div>
+                <Button onClick={() => addAssignment()}>ADD ASSIGNMENT</Button>
+            </div>
 
             {editAssignment && (
                 <AssignmentUpdate
