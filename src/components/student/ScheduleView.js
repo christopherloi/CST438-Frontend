@@ -39,8 +39,21 @@ const ScheduleView = () => {
         fetchSchedule();
     }, [fetchSchedule]);
 
-    const dropCourse = async (enrollmentId) => {
+    const dropCourse = async (enrollmentId, year, semester) => {
         try {
+            const gradeResponse = await fetch(`${SERVER_URL}/enrollments?year=${year}&semester=${semester}&studentId=3`);
+            const gradeJson = await gradeResponse.json();
+            let enrollmentGrade = null;
+            for (let i = 0; i < gradeJson.length; i++) {
+                if (gradeJson[i].enrollmentId == enrollmentId) {
+                    enrollmentGrade = gradeJson[i].grade;
+                }
+            }
+            if (enrollmentGrade != null) {
+                setMessage("Cannot drop course: grades are recorded.");
+                return;
+            }
+
             const response = await fetch(`${SERVER_URL}/enrollments/${enrollmentId}`, {
                 method: 'DELETE',
             });
@@ -100,7 +113,7 @@ const ScheduleView = () => {
                         <td>{s.title}</td>
                         <td>{s.credits}</td>
                         <td>
-                            <Button onClick={() => dropCourse(s.enrollmentId)}>Drop Course</Button>
+                            <Button onClick={() => dropCourse(s.enrollmentId, s.year, s.semester)}>Drop Course</Button>
                         </td>
                     </tr>
                 ))}
