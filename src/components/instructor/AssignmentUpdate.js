@@ -6,7 +6,7 @@ import { SERVER_URL } from '../../Constants';
 //  use an mui Dialog
 //  issue PUT to URL  /assignments with updated assignment
 
-const AssignmentUpdate = ({ assignment, open, handleClose }) => {
+const AssignmentUpdate = ({ assignment, open, handleClose, save }) => {
     const [updatedAssignment, setUpdatedAssignment] = useState({ ...assignment });
 
     const handleChange = (e) => {
@@ -16,7 +16,7 @@ const AssignmentUpdate = ({ assignment, open, handleClose }) => {
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch(`${SERVER_URL}/assignments`, {
+            const response = await fetch(`${SERVER_URL}/assignments/${updatedAssignment.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,6 +25,7 @@ const AssignmentUpdate = ({ assignment, open, handleClose }) => {
             });
             if (response.ok) {
                 handleClose(true);
+                save(updatedAssignment); // Update parent component state
             } else {
                 const json = await response.json();
                 console.error("response error: " + json.message);
@@ -38,6 +39,15 @@ const AssignmentUpdate = ({ assignment, open, handleClose }) => {
         <Dialog open={open} onClose={() => handleClose(false)}>
             <DialogTitle>Update Assignment</DialogTitle>
             <DialogContent>
+                <TextField
+                    margin="dense"
+                    label="ID"
+                    type="text"
+                    name="id"
+                    fullWidth
+                    value={updatedAssignment.id}
+                    InputProps={{ readOnly: true }}
+                />
                 <TextField
                     margin="dense"
                     label="Title"

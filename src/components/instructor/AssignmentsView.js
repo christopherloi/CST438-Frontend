@@ -19,10 +19,12 @@ const AssignmentsView = () => {
     const location = useLocation();
     const { secNo } = location.state;
 
-    console.log('secNo:', secNo); // Debugging line to check secNo value
-
     const [message, setMessage] = useState('');
     const [assignments, setAssignments] = useState([]);
+    const [editAssignment, setEditAssignment] = useState(null); // Track assignment being edited
+    const [showGradeDialog, setShowGradeDialog] = useState(false);
+    const [selectedAssignment, setSelectedAssignment] = useState(null);
+    const [showUpdateDialog, setShowUpdateDialog] = useState(false);
 
     const fetchAssignments = async () => {
         try {
@@ -48,24 +50,8 @@ const AssignmentsView = () => {
     }, [secNo]);
 
     const gradeAssignment = async (assignment) => {
-        try {
-            const response = await fetch(`${SERVER_URL}/grades`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(assignment),
-            });
-            if (response.ok) {
-                setMessage("Assignment graded");
-                fetchAssignments();
-            } else {
-                const json = await response.json();
-                setMessage("response error: " + json.message);
-            }
-        } catch (err) {
-            setMessage("network error: " + err);
-        }
+        setSelectedAssignment(assignment);
+        setShowGradeDialog(true);
     };
 
     const saveAssignment = async (assignment) => {
@@ -109,11 +95,31 @@ const AssignmentsView = () => {
         }
     };
 
-    const onDelete = (e) => {
-        const row_idx = e.target.parentNode.parentNode.rowIndex - 1;
-        const assignmentId = assignments[row_idx].id;
+    const onDelete = async (assignmentId) => {
         if (window.confirm('Do you really want to delete?')) {
-            deleteAssignment(assignmentId);
+            await deleteAssignment(assignmentId);
+        }
+    };
+
+    const onEdit = (assignment) => {
+        setEditAssignment(assignment);
+        setShowUpdateDialog(true); // Open the update dialog
+    };
+
+    const closeEditDialog = () => {
+        setEditAssignment(null);
+        setShowUpdateDialog(false); // Close the update dialog
+    };
+
+    const handleCloseGradeDialog = () => {
+        setShowGradeDialog(false);
+        setSelectedAssignment(null);
+    };
+
+    const handleCloseUpdateDialog = (updated) => {
+        setShowUpdateDialog(false);
+        if (updated) {
+            fetchAssignments(); // Refresh assignments if updated
         }
     };
 
@@ -132,12 +138,34 @@ const AssignmentsView = () => {
                         <td>{a.id}</td>
                         <td>{a.title}</td>
                         <td>{a.dueDate}</td>
-                        <td><AssignmentGrade assignment={a} save={gradeAssignment}/></td>
-                        <td><Button onClick={onDelete}>DELETE</Button></td>
+                        <td>
+                            <Button onClick={() => gradeAssignment(a)}>Grade</Button>
+                        </td>
+                        <td>
+                            <Button onClick={() => onEdit(a)}>Edit</Button>
+                        </td>
+                        <td>
+                            <Button onClick={() => onDelete(a.id)}>DELETE</Button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
+
+            {editAssignment && (
+                <AssignmentUpdate
+                    assignment={editAssignment}
+                    open={showUpdateDialog}
+                    handleClose={handleCloseUpdateDialog}
+                />
+            )}
+
+            {showGradeDialog && selectedAssignment && (
+                <AssignmentGrade
+                    assignment={selectedAssignment}
+                    onClose={handleCloseGradeDialog}
+                />
+            )}
         </div>
     );
 };

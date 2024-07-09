@@ -82,12 +82,12 @@ const AssignmentGrade = ({ assignment }) => {
                                 value={g.score}
                                 onChange={(e) => handleChange(e, g.gradeId)}
                             />
+                            <Button onClick={handleSave}>Grade</Button>
                         </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
-            <Button onClick={handleSave}>Grade</Button>
         </div>
     );
 };
