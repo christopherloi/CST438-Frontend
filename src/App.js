@@ -46,9 +46,9 @@ function App() {
           <Routes>
             <Route path="/" element={<StudentLayout />}>
               <Route index element={<StudentHome />} />
-              {/* <Route path="schedule" element={<ScheduleView />} /> */}
+              <Route path="schedule" element={<ScheduleView />} />
               <Route path="studentAssignments" element={<StudentAssignmentsView />} />
-              {/* <Route path="transcript" element={<Transcript />} /> */}
+              <Route path="transcript" element={<Transcript />} />
               <Route path="addCourse" element={<CourseEnroll />} />
             </Route>
           </Routes>
