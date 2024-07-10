@@ -15,8 +15,6 @@ const EnrollmentsView = () => {
     const location = useLocation();
     const { secNo } = location.state;
 
-    console.log('secNo:', secNo); // Debugging line to check secNo value
-
     const [enrollments, setEnrollments] = useState([]);
     const [message, setMessage] = useState('');
 
@@ -44,23 +42,23 @@ const EnrollmentsView = () => {
     }, [secNo]);
 
     const handleGradeChange = (e, enrollmentId) => {
-        const { value } = e.target;
+        const value = e.target.value;
         setEnrollments(enrollments.map(en => en.enrollmentId === enrollmentId ? { ...en, grade: value } : en));
     };
 
     const handleSaveGrades = async () => {
-        const grades = enrollments.map(en => ({
-            gradeId: en.gradeId, // assuming you have a gradeId
-            score: en.grade // ensure this is a string
+        const updatedEnrollments = enrollments.map(en => ({
+            enrollmentId: en.enrollmentId,
+            grade: en.grade
         }));
 
         try {
-            const response = await fetch(`${SERVER_URL}/grades`, {
+            const response = await fetch(`${SERVER_URL}/enrollments`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(grades),
+                body: JSON.stringify(updatedEnrollments),
             });
 
             if (response.ok) {
