@@ -7,8 +7,8 @@ export const StudentHome = () => {
           <h1>Student Home</h1>
           <p>View class schedule. Drop course.</p> 
           <p>Enroll in a course.</p>
-          <p>View assignments and grades.</p>
-          <p>View Transcript.</p>
+          <p>View assignments and grades</p>
+          <p>View Transcript</p>
       </div>
       
       );

@@ -8,7 +8,8 @@ import {AdminHome, AdminLayout} from './components/admin/AdminLayout';
 import {StudentLayout, StudentHome} from './components/student/StudentLayout';
 import ScheduleView from './components/student/ScheduleView';
 import Transcript from './components/student/Transcript';
-import StudentAssignmentsView from './components/student/AssignmentsStudentView';
+import CourseEnroll from './components/student/CourseEnroll';
+import AssignmentsStudentView from './components/student/AssignmentsStudentView';
 import InstructorLayout from './components/instructor/InstructorLayout';
 import InstructorHome from './components/instructor/InstructorHome';
 import AssignmentsView from './components/instructor/AssignmentsView';
@@ -46,7 +47,7 @@ function App() {
             <Route path="/" element={<StudentLayout />}>
               <Route index element={<StudentHome />} />
               <Route path="schedule" element={<ScheduleView />} />
-              <Route path="studentAssignments" element={<StudentAssignmentsView />} />
+              <Route path="studentAssignments" element={<AssignmentsStudentView />} />
               <Route path="transcript" element={<Transcript />} />
               <Route path="addCourse" element={<CourseEnroll />} />
             </Route>

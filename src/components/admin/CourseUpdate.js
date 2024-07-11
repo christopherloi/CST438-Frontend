@@ -6,7 +6,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
-const CourseUpdate = (props)  => { //props = properties
+const CourseUpdate = (props)  => {
 
     const [open, setOpen] = useState(false);
     const [editMessage, setEditMessage] = useState('');
