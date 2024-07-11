@@ -127,26 +127,26 @@ function SectionsView(props) {
         <div> 
             <h3>Sections</h3>    
           
-            <h4>{message}</h4>
+            <h4 id="addMessage">{message}</h4>
             <h4>Enter course prefix, year, semester.  Example  cst 2024 Spring</h4>
             <table className="Center">
                 <tbody>
                 <tr>
                     <td>Course Prefix:</td>
-                    <td><input type="text" id="courseId" name="courseId" value={search.courseId} onChange={editChange} /></td>
+                    <td><input type="text" id="scourseId" name="courseId" value={search.courseId} onChange={editChange} /></td>
                 </tr>
                 <tr>
                     <td>Year:</td>
-                    <td><input type="text" id="year" name="year" value={search.year} onChange={editChange} /></td>
+                    <td><input type="text" id="syear" name="year" value={search.year} onChange={editChange} /></td>
                 </tr>
                 <tr>
                     <td>Semester:</td>
-                    <td><input type="text" id="semester" name="semester" value={search.semester} onChange={editChange} /></td>
+                    <td><input type="text" id="ssemester" name="semester" value={search.semester} onChange={editChange} /></td>
                 </tr>
                 </tbody>
             </table>
             <br/>
-            <button type="submit" onClick={fetchSections} >Search for Sections</button>
+            <button id="search" type="submit" onClick={fetchSections} >Search for Sections</button>
             <br/>
             <br/>
             <table className="Center" > 
