@@ -48,7 +48,7 @@ const AssignmentAdd = (props)  => {
                 </DialogContent>
                 <DialogActions>
                     <Button color="secondary" onClick={editClose}>Close</Button>
-                    <Button color="primary" onClick={onSave}>Save</Button>
+                    <Button id="save" color="primary" onClick={onSave}>Save</Button>
                 </DialogActions>
             </Dialog> 
         </>                       
