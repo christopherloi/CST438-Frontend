@@ -96,8 +96,8 @@ const AssignmentGrade = (props) => {
                     </table>
                 </DialogContent>
                 <DialogActions>
-                    <Button color="secondary" onClick={editClose}>Close</Button>
-                    <Button color="primary" onClick={onSave}>Save</Button>
+                    <Button id="close" color="secondary" onClick={editClose}>Close</Button>
+                    <Button id="save" color="primary" onClick={onSave}>Save</Button>
                 </DialogActions>
             </Dialog> 
         </>          
