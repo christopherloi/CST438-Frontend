@@ -1,114 +1,101 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { TextField, Button } from '@mui/material';
-import { SERVER_URL } from '../../Constants';
+import React, {useState, useEffect} from 'react';
+import {useLocation} from 'react-router-dom';
+import Button from '@mui/material/Button';
+import {SERVER_URL} from '../../Constants';
 
-// instructor view list of students enrolled in a section 
-// use location to get section no passed from InstructorSectionsView
-// fetch the enrollments using URL /sections/{secNo}/enrollments
-// display table with columns
-//   'enrollment id', 'student id', 'name', 'email', 'grade'
-//  grade column is an input field
-//  hint:  <input type="text" name="grade" value={e.grade} onChange={onGradeChange} />
 
-const EnrollmentsView = () => {
-    const location = useLocation();
-    const { secNo } = location.state;
+const EnrollmentsView = (props) => {
 
     const [enrollments, setEnrollments] = useState([]);
     const [message, setMessage] = useState('');
 
-    useEffect(() => {
-        const fetchEnrollments = async () => {
-            try {
-                const response = await fetch(`${SERVER_URL}/sections/${secNo}/enrollments`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setEnrollments(data);
-                } else {
-                    const json = await response.json();
-                    setMessage("response error: " + json.message);
-                }
-            } catch (err) {
-                setMessage("network error: " + err);
-            }
-        };
+    const location = useLocation();
+    const {secNo, courseId, secId} = location.state;
 
-        if (secNo) {
-            fetchEnrollments();
-        } else {
-            setMessage("Section number is undefined");
-        }
-    }, [secNo]);
-
-    const handleGradeChange = (e, enrollmentId) => {
-        const value = e.target.value;
-        setEnrollments(enrollments.map(en => en.enrollmentId === enrollmentId ? { ...en, grade: value } : en));
-    };
-
-    const handleSaveGrades = async () => {
-        const updatedEnrollments = enrollments.map(en => ({
-            enrollmentId: en.enrollmentId,
-            grade: en.grade
-        }));
-
+    const fetchEnrollments = async () => {
+        
+        if (!secNo) return;
         try {
-            const response = await fetch(`${SERVER_URL}/enrollments`, {
+            const response = await fetch(`${SERVER_URL}/sections/${secNo}/enrollments`);
+            if (response.ok) {
+                const data = await response.json();
+                setEnrollments(data);
+            } else {
+                const rc = await response.json();
+                setMessage(rc.message);
+            }
+        } catch (err) {
+            setMessage("network error: "+err);
+        }
+    }
+
+    useEffect(() => {
+        fetchEnrollments()
+    }, [] );
+
+    const saveGrades = async () => {
+        try {
+            const response = await fetch (
+                `${SERVER_URL}/enrollments`, 
+                {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedEnrollments),
-            });
-
+                }, 
+                body: JSON.stringify(enrollments),
+                });
             if (response.ok) {
-                setMessage("Grades saved successfully");
+                setMessage("Grades saved");
+                fetchEnrollments();
             } else {
-                const json = await response.json();
-                setMessage("response error: " + json.message);
-            }
+                const rc = await response.json();
+                setMessage(rc.message);
+            } 
         } catch (err) {
-            setMessage("network error: " + err);
+            setMessage("network error: "+err);
         }
-    };
+    }
 
-    return (
-        <div>
-            <h4>{message}</h4>
-            <table className="Center">
-                <thead>
-                <tr>
-                    <th>Enrollment ID</th>
-                    <th>Student ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Grade</th>
-                </tr>
-                </thead>
-                <tbody>
-                {enrollments.map(e => (
-                    <tr key={e.enrollmentId}>
-                        <td>{e.enrollmentId}</td>
-                        <td>{e.studentId}</td>
-                        <td>{e.name}</td>
-                        <td>{e.email}</td>
-                        <td>
-                            <TextField
-                                type="text"
-                                name="grade"
-                                value={e.grade}
-                                onChange={(ev) => handleGradeChange(ev, e.enrollmentId)}
-                            />
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-            <Button variant="contained" color="primary" onClick={handleSaveGrades}>
-                Save Grades
-            </Button>
-        </div>
+    const onGradeChange = (e) => {
+        const copy_enrollments = enrollments.map((x) => x);
+        const row_idx = e.target.parentNode.parentNode.rowIndex - 1;
+        copy_enrollments[row_idx] = {...(copy_enrollments[row_idx]), grade: e.target.value};
+        setEnrollments(copy_enrollments);      
+    }
+
+    const headers = ['enrollment id', 'student id', 'name', 'email', 'grade'];
+     
+    return(
+        <> 
+            <h3>{message}</h3>   
+            
+            { enrollments.length > 0 && 
+                <> 
+                    <h3> {courseId}-{secId} Enrollments</h3>   
+                    
+                    <table className="Center" > 
+                        <thead>
+                        <tr>
+                            {headers.map((s, idx) => (<th key={idx}>{s}</th>))}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {enrollments.map((e) => (
+                                <tr key={e.enrollmentId}>
+                                <td>{e.enrollmentId}</td>
+                                <td>{e.studentId}</td>
+                                <td>{e.name}</td>
+                                <td>{e.email}</td>
+                                <td><input type="text" name="grade" value={(e.grade)?e.grade:''} onChange={onGradeChange} /></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <Button onClick={saveGrades}>Save Grades</Button>
+                </>
+            }
+        </>
     );
-};
+}
 
 export default EnrollmentsView;

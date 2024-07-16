@@ -1,67 +1,58 @@
 import React, { useState } from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button } from '@mui/material';
-import { SERVER_URL } from '../../Constants';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
-const AssignmentAdd = ({ secNo, open, handleClose }) => {
-    const [assignment, setAssignment] = useState({ title: '', dueDate: '' });
-    const [error, setError] = useState('');
+const AssignmentAdd = (props)  => {
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setAssignment({ ...assignment, [name]: value });
+    const [open, setOpen] = useState(false);
+    const [editMessage, setEditMessage] = useState('');
+    const [assignment, setAssignment] = useState({ title:'', dueDate:''});
+
+    /*
+     *  dialog for add assignment
+     */
+    const editOpen = () => {
+        setOpen(true);
+        setEditMessage('');
+        setAssignment({ title:'', dueDate:''});
     };
 
-    const handleSubmit = async () => {
-        try {
-            const response = await fetch(`${SERVER_URL}/assignments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ ...assignment, secNo }),
-            });
-            if (response.ok) {
-                handleClose(true);
-            } else {
-                const json = await response.json();
-                setError("Response error: " + json.message);
-            }
-        } catch (err) {
-            setError("Network error: " + err.message);
-        }
+    const editClose = () => {
+        setOpen(false);
+        setAssignment({ title:'', dueDate:''});
+        setEditMessage('');
     };
+
+    const editChange = (event) => {
+        setAssignment({...assignment,  [event.target.name]:event.target.value})
+    }
+
+    const onSave = () => {
+        props.save(assignment);
+        editClose();
+    }
 
     return (
-        <Dialog open={open} onClose={() => handleClose(false)}>
-            <DialogTitle>Add Assignment</DialogTitle>
-            <DialogContent>
-                <TextField
-                    margin="dense"
-                    label="Title"
-                    type="text"
-                    name="title"
-                    fullWidth
-                    value={assignment.title}
-                    onChange={handleChange}
-                />
-                <TextField
-                    margin="dense"
-                    label="Due Date"
-                    type="date"
-                    name="dueDate"
-                    fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    value={assignment.dueDate}
-                    onChange={handleChange}
-                />
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => handleClose(false)}>Cancel</Button>
-                <Button onClick={handleSubmit}>Add</Button>
-            </DialogActions>
-        </Dialog>
-    );
-};
+        <>
+            <Button onClick={editOpen}>Add Assignment</Button>
+            <Dialog open={open} >
+                <DialogTitle>Add Assignment</DialogTitle>
+                <DialogContent  style={{paddingTop: 20}} >
+                    <h4>{editMessage}</h4>
+                    <TextField style={{padding:10}} autoFocus fullWidth label="title" name="title" value={assignment.title} onChange={editChange}  /> 
+                    <TextField style={{padding:10}} fullWidth label="dueDate" name="dueDate" value={assignment.dueDate} onChange={editChange}  /> 
+                </DialogContent>
+                <DialogActions>
+                    <Button color="secondary" onClick={editClose}>Close</Button>
+                    <Button id="save" color="primary" onClick={onSave}>Save</Button>
+                </DialogActions>
+            </Dialog> 
+        </>                       
+    )
+}
 
 export default AssignmentAdd;

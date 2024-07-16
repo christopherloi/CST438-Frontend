@@ -1,19 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
-import CourseUpdate from './CourseUpdate';
-import CourseAdd from './CourseAdd';
+import AdminCourseUpdate from './CourseUpdate';
+import AdminCourseAdd from './CourseAdd';
 import Button from '@mui/material/Button';
 import {SERVER_URL} from '../../Constants';
 
 function CoursesView(props) {
     const headers = ['CourseId', 'Title', 'Credits',  '', ''];
     
-    const [courses, setCourses] = useState([
-    //   {courseId: 'cst363', title: 'Intro to Databases', credits: 4}, 
-    //   {courseId: 'cst438', title: 'Software Engineering', credits: 4}, 
-    //   {courseId: 'cst499', title: 'Capstone', credits: 4} // Added these 3 lines
-    ]); 
+    const [courses, setCourses] = useState([    ]);
 
     const [ message, setMessage ] = useState('');
 
@@ -125,23 +121,23 @@ function CoursesView(props) {
             <h4>{message}</h4>     
             <table className="Center" > 
                 <thead>
-                    <tr>
-                        {headers.map((s, idx) => (<th key={idx}>{s}</th>))}
-                    </tr>
+                <tr>
+                    {headers.map((s, idx) => (<th key={idx}>{s}</th>))}
+                </tr>
                 </thead>
                 <tbody>
-                    {courses.map((c) => (
-                            <tr key={c.courseId}>
-                                <td>{c.courseId}</td>
-                                <td>{c.title}</td>
-                                <td>{c.credits}</td>
-                                <td><CourseUpdate course={c} save={saveCourse} /></td>
-                                <td><Button onClick={onDelete}>Delete</Button></td>
-                            </tr>
-                        ))}
+                {courses.map((c) => (
+                        <tr key={c.courseId}>
+                            <td>{c.courseId}</td>
+                            <td>{c.title}</td>
+                            <td>{c.credits}</td>
+                            <td><AdminCourseUpdate course={c} save={saveCourse} /></td>
+                            <td><Button onClick={onDelete}>Delete</Button></td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
-            <CourseAdd save={addCourse} />
+            <AdminCourseAdd save={addCourse} />
         </div>
     );
 }

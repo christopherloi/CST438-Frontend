@@ -1,159 +1,153 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
+import {useLocation} from 'react-router-dom'
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import Button from '@mui/material/Button';
-import { useLocation } from 'react-router-dom';
-import { SERVER_URL } from '../../Constants';
+import {SERVER_URL} from '../../Constants';
+import AssignmentAdd from './AssignmentAdd';
 import AssignmentUpdate from './AssignmentUpdate';
 import AssignmentGrade from './AssignmentGrade';
-import AssignmentAdd from './AssignmentAdd';
 
-const AssignmentsView = () => {
-    const headers = ['ID', 'Title', 'Due Date', '', '', ''];
-    const location = useLocation();
-    const { secNo } = location.state;
+const AssignmentsView = (props) => {
 
-    const [message, setMessage] = useState('');
     const [assignments, setAssignments] = useState([]);
-    const [editAssignment, setEditAssignment] = useState(null);
-    const [showGradeDialog, setShowGradeDialog] = useState(false);
-    const [selectedAssignment, setSelectedAssignment] = useState(null);
-    const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-    const [showAddDialog, setShowAddDialog] = useState(false);
+    const [message, setMessage] = useState('');
+
+    const location = useLocation();
+    const {secNo, courseId, secId} = location.state;
+
 
     const fetchAssignments = async () => {
-        try {
-            const response = await fetch(`${SERVER_URL}/sections/${secNo}/assignments`);
-            if (response.ok) {
-                const data = await response.json();
-                setAssignments(data);
-            } else {
-                const json = await response.json();
-                setMessage("response error: " + json.message);
-            }
-        } catch (err) {
-            setMessage("network error: " + err);
+       
+      try {
+        const response = await fetch(`${SERVER_URL}/sections/${secNo}/assignments`);
+        if (response.ok) {
+          const data = await response.json();
+          setAssignments(data);
+        } else {
+          const rc = await response.json();
+          setMessage("fetch error "+rc.message);
         }
-    };
+      } catch (err) {
+        setMessage("network error "+err);
+      }
+    }
 
     useEffect(() => {
-        if (secNo) {
+      fetchAssignments()
+    }, []);
+
+    const add = (assignment) => {
+        assignment.courseId = courseId;
+        assignment.secId = secId;
+        assignment.secNo = secNo;
+        fetch (`${SERVER_URL}/assignments`, 
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }, 
+          body: JSON.stringify(assignment),
+        })
+        .then(response => response.json() )
+        .then(data => {
+            setMessage("Assignment created id="+data.id);
             fetchAssignments();
-        } else {
-            setMessage("Section number is undefined");
-        }
-    }, [secNo]);
+        })
+        .catch(err => setMessage(err));
+    }
 
-    const gradeAssignment = (assignment) => {
-        setSelectedAssignment(assignment);
-        setShowGradeDialog(true);
-    };
+    const save = (assignment) => {
+        fetch (`${SERVER_URL}/assignments`, 
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          }, 
+          body: JSON.stringify(assignment),
+        })
+        .then(response => response.json() )
+        .then(data => {
+            setMessage("Assignment saved");
+            fetchAssignments();
+        })
+        .catch(err => setMessage(err));
+    }
 
-    const onDelete = async (assignmentId) => {
-        if (window.confirm('Do you really want to delete?')) {
-            try {
-                const response = await fetch(`${SERVER_URL}/assignments/${assignmentId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                if (response.ok) {
-                    setMessage("Assignment deleted");
-                    fetchAssignments();
-                } else {
-                    const rc = await response.json();
-                    setMessage("Delete failed " + rc.message);
-                }
-            } catch (err) {
-                setMessage("network error: " + err);
+
+    const doDelete = (e) => {
+        const row_idx = e.target.parentNode.parentNode.rowIndex - 1;
+        const id = assignments[row_idx].id;
+        fetch (`${SERVER_URL}/assignments/${id}`, 
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }, 
+        })
+        .then(response => {
+            if (response.ok) {
+                setMessage("Assignment deleted");
+                fetchAssignments();
+            } else {
+                setMessage("Delete failed");
             }
-        }
-    };
+            
+        })
+        .catch(err => setMessage(err));
+    }
 
-    const onEdit = (assignment) => {
-        setEditAssignment(assignment);
-        setShowUpdateDialog(true);
-    };
+    const onDelete = (e) => {
+        confirmAlert({
+            title: 'Confirm to delete',
+            message: 'Do you really want to delete?',
+            buttons: [
+              {
+                label: 'Yes',
+                onClick: () => doDelete(e)
+              },
+              {
+                label: 'No',
+              }
+            ]
+          });
+    }
 
-    const closeEditDialog = (updated) => {
-        setEditAssignment(null);
-        setShowUpdateDialog(false);
-        if (updated) {
-            fetchAssignments(); // Refresh assignments if updated
-        }
-    };
+    const headers = ['id', 'Title', 'Due Date', '', '', ''];
+     
+    return(
+        <div> 
+            <h3 id="statusMessage">{message}</h3>   
 
-    const handleCloseGradeDialog = () => {
-        setShowGradeDialog(false);
-        setSelectedAssignment(null);
-    };
+            { assignments.length > 0 && 
+                <> 
+                    <h3>{courseId}-{secId} Assignments</h3>   
+                    
+                    <table className="Center" > 
+                        <thead>
+                        <tr>
+                            {headers.map((s, idx) => (<th key={idx}>{s}</th>))}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {assignments.map((a) => (
+                                <tr key={a.id}>
+                                <td>{a.id}</td>
+                                <td>{a.title}</td>
+                                <td>{a.dueDate}</td>
+                                <td><AssignmentGrade assignment={a} /></td>
+                                <td><AssignmentUpdate assignment={a} save={save} /></td>
+                                <td><Button onClick={onDelete}>Delete</Button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            }
 
-    const onAdd = () => {
-        setShowAddDialog(true);
-    };
-
-    const closeAddDialog = (updated) => {
-        setShowAddDialog(false);
-        if (updated) {
-            fetchAssignments(); // Refresh assignments if a new assignment was added
-        }
-    };
-
-    return (
-        <div>
-            <h4>{message}</h4>
-            <table className="Center">
-                <thead>
-                <tr>
-                    {headers.map((h, idx) => (<th key={idx}>{h}</th>))}
-                </tr>
-                </thead>
-                <tbody>
-                {assignments.map((a) => (
-                    <tr key={a.id}>
-                        <td>{a.id}</td>
-                        <td>{a.title}</td>
-                        <td>{a.dueDate}</td>
-                        <td>
-                            <Button onClick={() => gradeAssignment(a)}>Grade</Button>
-                        </td>
-                        <td>
-                            <Button onClick={() => onEdit(a)}>Edit</Button>
-                        </td>
-                        <td>
-                            <Button onClick={() => onDelete(a.id)}>DELETE</Button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-            <div>
-                <Button onClick={onAdd}>ADD ASSIGNMENT</Button>
-            </div>
-
-            {editAssignment && (
-                <AssignmentUpdate
-                    assignment={editAssignment}
-                    open={showUpdateDialog}
-                    handleClose={closeEditDialog}
-                />
-            )}
-
-            {showGradeDialog && selectedAssignment && (
-                <AssignmentGrade
-                    assignment={selectedAssignment}
-                    onClose={handleCloseGradeDialog}
-                />
-            )}
-
-            {showAddDialog && (
-                <AssignmentAdd
-                    secNo={secNo}
-                    open={showAddDialog}
-                    handleClose={closeAddDialog}
-                />
-            )}
+            <AssignmentAdd id="addAssignment" save={add} />
         </div>
     );
-};
+}
 
 export default AssignmentsView;

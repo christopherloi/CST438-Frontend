@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
-import SectionUpdate from './SectionUpdate';
-import SectionAdd from './SectionAdd';
+import AdminSectionUpdate from './SectionUpdate';
+import AdminSectionAdd from './SectionAdd';
 import Button from '@mui/material/Button';
 import {SERVER_URL} from '../../Constants';
 
@@ -32,6 +32,51 @@ function SectionsView(props) {
             setMessage("network error: "+err);
           }
         }
+    }
+
+    const saveSection = async (section) => {
+      try {
+        const response = await fetch (`${SERVER_URL}/sections`, 
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            }, 
+            body: JSON.stringify(section),
+          });
+        if (response.ok) {
+          setMessage("section saved");
+          fetchSections();
+        } else {
+          const rc = await response.json();
+          setMessage(rc.message);
+        }
+      } catch (err) {
+        setMessage("network error: "+err);
+      }
+    }
+
+    const addSection = async (section) => {
+      try {
+        const response = await fetch (`${SERVER_URL}/sections`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }, 
+            body: JSON.stringify(section),
+          });
+        if (response.ok) {
+          const rc = await response.json();
+          setMessage("section added secno="+rc.secNo);
+          fetchSections();
+        } else {
+          const rc = await response.json();
+          setMessage(rc.message);
+        }
+      } catch (err) {
+        setMessage("network error: "+err);
+      }
     }
 
     const deleteSection = async (secNo) => {
@@ -82,7 +127,7 @@ function SectionsView(props) {
         <div> 
             <h3>Sections</h3>    
           
-            <h4>{message}</h4>
+            <h4 id="addMessage">{message}</h4>
             <h4>Enter course prefix, year, semester.  Example  cst 2024 Spring</h4>
             <table className="Center">
                 <tbody>
@@ -101,7 +146,7 @@ function SectionsView(props) {
                 </tbody>
             </table>
             <br/>
-            <button type="submit" id="search" onClick={fetchSections} >Search for Sections</button>
+            <button id="search" type="submit" onClick={fetchSections} >Search for Sections</button>
             <br/>
             <br/>
             <table className="Center" > 
@@ -121,13 +166,13 @@ function SectionsView(props) {
                         <td>{s.building}</td>
                         <td>{s.room}</td>
                         <td>{s.times}</td>
-                        <td><SectionUpdate section={s} onClose={fetchSections} /></td>
+                        <td><AdminSectionUpdate section={s} save={saveSection} /></td>
                         <td><Button onClick={onDelete}>Delete</Button></td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <SectionAdd  onClose={fetchSections} />
+            <AdminSectionAdd save={addSection} />
         </div>
     );
 }

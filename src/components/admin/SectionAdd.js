@@ -5,11 +5,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import {SERVER_URL} from '../../Constants';
-
-/*
- * Dialog for edit a section
- */
 
 const SectionAdd = (props)  => {
 
@@ -20,16 +15,23 @@ const SectionAdd = (props)  => {
         instructorName:'', instructorEmail:''}
      );
 
-    const editOpen = () => {
+    /*
+     *  dialog for edit user
+     */
+    const clearData = () => {
         setSection( {secNo:'', courseId:'', secId:'', year:'', semester:'', building:'', room:'', times:'',
         instructorName:'', instructorEmail:''});
         setEditMessage('');
+    }
+
+    const editOpen = () => {
+        clearData();
         setOpen(true);
     };
 
     const editClose = () => {
         setOpen(false);
-        props.onClose();
+        clearData();
     };
 
     const editChange = (event) => {
@@ -40,31 +42,10 @@ const SectionAdd = (props)  => {
         if (section.courseId==='' || section.secId==='' || section.year==='' || section.semester==='') {
             setEditMessage('Must enter data for courseId secId, year semester');
         } else {
-            addSection(section);
+            props.save(section);
+            editClose();
         }
     }
-
-    const addSection = async (section) => {
-        try {
-          const response = await fetch (`${SERVER_URL}/sections`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              }, 
-              body: JSON.stringify(section),
-            });
-          if (response.ok) {
-            const rc = await response.json();
-            setEditMessage("section added secno="+rc.secNo);
-          } else {
-            const rc = await response.json();
-            setEditMessage(rc.message);
-          }
-        } catch (err) {
-          setEditMessage("network error: "+err);
-        }
-      }
 
 
     return (
@@ -73,7 +54,7 @@ const SectionAdd = (props)  => {
         <Dialog open={open} >
             <DialogTitle>Add Section</DialogTitle>
             <DialogContent  style={{paddingTop: 20}} >
-                <h4 id="addMessage">{editMessage}</h4>
+                <h4>{editMessage}</h4>
                 <TextField id="ecourseId" style={{padding:10}} autoFocus fullWidth label="courseId" name="courseId" value={section.courseId} onChange={editChange}  /> 
                 <TextField id="esecId" style={{padding:10}} fullWidth label="secId" name="secId" value={section.secId} onChange={editChange}  /> 
                 <TextField id="eyear" style={{padding:10}} fullWidth label="year" name="year" value={section.year} onChange={editChange}  /> 
