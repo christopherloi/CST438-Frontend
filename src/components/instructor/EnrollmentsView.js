@@ -67,7 +67,7 @@ const EnrollmentsView = (props) => {
      
     return(
         <> 
-            <h3>{message}</h3>   
+            <h3 id="message">{message}</h3>   
             
             { enrollments.length > 0 && 
                 <> 
