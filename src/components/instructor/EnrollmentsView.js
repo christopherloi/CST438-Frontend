@@ -39,11 +39,13 @@ const EnrollmentsView = (props) => {
 
     const saveGrades = async () => {
         try {
+            const jwt = sessionStorage.getItem('jwt');
             const response = await fetch (
                 `${SERVER_URL}/enrollments`, 
                 {
                 method: 'PUT',
                 headers: {
+                    'Authorization': jwt,
                     'Content-Type': 'application/json',
                 }, 
                 body: JSON.stringify(enrollments),

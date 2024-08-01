@@ -42,6 +42,7 @@ const AssignmentsView = (props) => {
     }, []);
 
     const add = (assignment) => {
+        const jwt = sessionStorage.getItem('jwt');
         assignment.courseId = courseId;
         assignment.secId = secId;
         assignment.secNo = secNo;
@@ -49,6 +50,7 @@ const AssignmentsView = (props) => {
         {
           method: 'POST',
           headers: {
+            'Authorization': jwt,
             'Content-Type': 'application/json',
           }, 
           body: JSON.stringify(assignment),
@@ -62,10 +64,12 @@ const AssignmentsView = (props) => {
     }
 
     const save = (assignment) => {
+        const jwt = sessionStorage.getItem('jwt');
         fetch (`${SERVER_URL}/assignments`, 
         {
           method: 'PUT',
           headers: {
+            'Authorization': jwt,
             'Content-Type': 'application/json',
           }, 
           body: JSON.stringify(assignment),
@@ -80,12 +84,14 @@ const AssignmentsView = (props) => {
 
 
     const doDelete = (e) => {
+        const jwt = sessionStorage.getItem('jwt');
         const row_idx = e.target.parentNode.parentNode.rowIndex - 1;
         const id = assignments[row_idx].id;
         fetch (`${SERVER_URL}/assignments/${id}`, 
         {
           method: 'DELETE',
           headers: {
+            'Authorization': jwt,
             'Content-Type': 'application/json',
           }, 
         })

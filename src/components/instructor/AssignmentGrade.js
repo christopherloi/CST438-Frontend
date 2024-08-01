@@ -40,10 +40,12 @@ const AssignmentGrade = (props) => {
 
     const onSave = async () => {
         try { 
+            const jwt = sessionStorage.getItem('jwt');
             const response = await fetch (`${SERVER_URL}/grades`, 
                 {
                 method: 'PUT',
                 headers: {
+                    'Authorization': jwt,
                     'Content-Type': 'application/json',
                 }, 
                 body: JSON.stringify(grades),
