@@ -22,7 +22,10 @@ const AssignmentGrade = (props) => {
     const fetchGrades = async (id) => {
         try {
             const jwt = sessionStorage.getItem('jwt');
-            const response = await fetch(`${SERVER_URL}/assignments/${id}/grades`);
+            const response = await fetch(`${SERVER_URL}/assignments/${id}/grades`,
+                {headers: {
+                    'Authorization': jwt,
+                }});
             if (response.ok) {
                 const data = await response.json();
                 setGrades(data);

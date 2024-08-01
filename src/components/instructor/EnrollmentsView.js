@@ -17,7 +17,10 @@ const EnrollmentsView = (props) => {
         if (!secNo) return;
         try {
             const jwt = sessionStorage.getItem('jwt');
-            const response = await fetch(`${SERVER_URL}/sections/${secNo}/enrollments`);
+            const response = await fetch(`${SERVER_URL}/sections/${secNo}/enrollments`,
+                {headers: {
+                    'Authorization': jwt,
+                }});
             if (response.ok) {
                 const data = await response.json();
                 setEnrollments(data);
