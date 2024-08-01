@@ -20,6 +20,7 @@ const AssignmentsView = (props) => {
     const fetchAssignments = async () => {
        
       try {
+        const jwt = sessionStorage.getItem('jwt');
         const response = await fetch(`${SERVER_URL}/sections/${secNo}/assignments`);
         if (response.ok) {
           const data = await response.json();
