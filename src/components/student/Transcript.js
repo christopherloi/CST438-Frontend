@@ -10,7 +10,11 @@ const Transcript = (props) => {
 
     const fetchData = async () => {
         try {
-            const response = await fetch(`${SERVER_URL}/transcripts?studentId=3`);
+            const jwt = sessionStorage.getItem('jwt');
+            const response = await fetch(`${SERVER_URL}/transcripts`,
+                {headers: {
+                    'Authorization': jwt,
+                }});
             if (response.ok) {
                 const data = await response.json();
                 setCourses(data);
