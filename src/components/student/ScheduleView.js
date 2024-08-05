@@ -14,14 +14,20 @@ const ScheduleView = (props) => {
 
    
     const fetchEnrollments = async () => {
-             try {
-            const response = await fetch(`${SERVER_URL}/enrollments?studentId=3&year=${term.year}&semester=${term.semester}`);
+        const jwt = sessionStorage.getItem('jwt');
+        try {
+            const response = await fetch(`${SERVER_URL}/enrollments?year=${term.year}&semester=${term.semester}`, {
+                headers: {
+                    'Authorization': jwt,
+                    'Content-Type': 'application/json'
+                }
+            });
             if (response.ok) {
                 const data = await response.json();
                 setEnrollments(data);
             } else {
                 const rc = await response.json();
-                setMessage(rc.message);
+                setMessage(rc.message|| `response error: ${response.status}`);
             }
         } catch (err) {
             setMessage("network error "+err);
@@ -29,11 +35,15 @@ const ScheduleView = (props) => {
     }
 
     const dropCourse = async (enrollmentId) => {
+        const jwt = sessionStorage.getItem('jwt');
         try {
-            const response = await fetch(`${SERVER_URL}/enrollments/${enrollmentId}`,
-                {
-                    method: 'DELETE',
-                });
+            const response = await fetch(`${SERVER_URL}/enrollments/${enrollmentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': jwt,
+                    'Content-Type': 'application/json'
+                }
+            });
             if (response.ok) {
                 setMessage("course dropped");
                 fetchEnrollments();

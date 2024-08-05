@@ -10,13 +10,16 @@ const Login = (props) => {
     }
   
     const login = async () => {
-      const basicu='Basic '+btoa(user.username+':'+user.password);
+      //const basicu='Basic '+btoa(user.username+':'+user.password);
       try {
         const response = await fetch(`${SERVER_URL}/login`, 
           {
-            method:'GET',
-            headers: {'Content-Type':'application/json',
-                      'Authorization': basicu }
+            method:'POST',
+            headers: {"Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: user.username,
+                    password: user.password,
+                }),
           });
         if (response.ok) {
           const json = await response.json();
@@ -43,7 +46,7 @@ const Login = (props) => {
             </tr>
             <tr>
                 <td> <label htmlFor="password">Password</label></td>
-                <td> <input type="text" name="password" value={user.password} onChange={onChange} /> </td>
+                <td> <input type="password" name="password" value={user.password} onChange={onChange} /> </td>
             </tr>
           </tbody>
         </table>

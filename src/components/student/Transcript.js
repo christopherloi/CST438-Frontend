@@ -9,14 +9,20 @@ const Transcript = (props) => {
    // removed hardcoded studentId=3 after login security implemented
 
     const fetchData = async () => {
+        const jwt = sessionStorage.getItem("jwt");
         try {
-            const response = await fetch(`${SERVER_URL}/transcripts?studentId=3`);
+            const response = await fetch(`${SERVER_URL}/transcripts`, {
+                headers: {
+                    Authorization: jwt,
+                    "Content-Type": "application/json",
+                },
+            });
             if (response.ok) {
                 const data = await response.json();
                 setCourses(data);
             } else {
                 const rc = await response.json();
-                setMessage(rc.message);
+                setMessage(rc.message|| `response error: ${response.status}`);
             }
         } catch (err) {
             setMessage("network error "+err);
