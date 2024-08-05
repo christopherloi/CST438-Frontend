@@ -10,22 +10,15 @@ const AssignmentsStudentView = (props) => {
    // removed hardcoded studentId=3 after login security implemented
 
     const fetchData = async () => {
-        const jwt = sessionStorage.getItem("jwt");
         sessionStorage.setItem('term', JSON.stringify(term));
         try {
-            const response = await fetch(`${SERVER_URL}/assignments?studentId=3&year=${term.year}&semester=${term.semester}`,
-                {
-                    headers: {
-                        Authorization: jwt,
-                        "Content-Type": "application/json",
-                    },
-                });
+            const response = await fetch(`${SERVER_URL}/assignments?studentId=3&year=${term.year}&semester=${term.semester}`);
             if (response.ok) {
                 const data = await response.json();
                 setAssignments(data);
             } else {
                 const rc = await response.json();
-                setMessage(rc.message || `response error: ${response.status}`);
+                setMessage(rc.message);
             }
         } catch (err) {
             setMessage("network error: "+err);
